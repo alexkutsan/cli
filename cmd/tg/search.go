@@ -83,7 +83,8 @@ func (a *app) newSearchCmd() *cobra.Command {
 		Short:   "Search messages in a peer or globally",
 		GroupID: groupMessaging,
 		Long: `Search messages. With a peer, searches that chat's history; with --global
-the peer is omitted and the query is run across all chats.`,
+the peer is omitted and the query is run across all chats.
+Poll hits include the question, options, and results.`,
 		Example: `  tg search @durov "release"
   tg search --global "invoice" --limit 20`,
 		Args: cobra.RangeArgs(1, 2),

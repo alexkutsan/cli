@@ -40,7 +40,8 @@ func (a *app) newContextCmd() *cobra.Command {
 		Use:     "context <peer> <message-id>",
 		Short:   "Show messages around a message",
 		GroupID: groupMessaging,
-		Long:    "Show the messages immediately before and after a given message id.",
+		Long: `Show the messages immediately before and after a given message id.
+Poll messages include the question, options, and results.`,
 		Example: `  tg context @durov 12345
   tg context me 1000 --radius 10`,
 		Args:              cobra.ExactArgs(2),

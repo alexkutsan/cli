@@ -83,6 +83,13 @@ tg wait  @x --timeout 30s -o json   # block for the next message, then exit
 tg read @x                          # mark read
 tg mute @x
 tg archive @x
+
+# Polls. history/search/pinned/context include data.messages[].poll.
+tg poll create @group "Lunch?" "Pizza" "Sushi" --public
+tg poll show @group 12345 -o json          # fresh results
+tg poll vote @group 12345 1                # 1-based index, or the option text
+tg poll vote @group 12345 --retract
+tg poll voters @group 12345 --option 1     # public polls only; anonymous errors
 ```
 
 Destructive (only when the user explicitly asks):
