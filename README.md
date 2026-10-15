@@ -79,7 +79,8 @@ Run `tg --help` for the full, grouped command list, or `tg <command> --help` for
 
 - **Messaging:** `send`, `reply`, `edit`, `delete`, `delete-history`, `forward`,
   `history`, `search` (`--global`), `read`, `pin`/`unpin`/`unpin-all`/`pinned`,
-  `react`/`unreact`/`reactions`, `draft`/`drafts`, `schedule`, `poll`, `link`, `context`.
+  `react`/`unreact`/`reactions`, `draft`/`drafts`, `schedule`, `poll`
+  (`create`, `show`, `vote`, `voters`), `link`, `context`.
 - **Media:** `upload` (with `--type` video/audio/voice/gif/sticker), `album`, `download`,
   `stickers`.
 - **Chats & contacts:** `chats list`, `chat get`/`full`, `mute`/`unmute`,
@@ -93,6 +94,36 @@ Run `tg --help` for the full, grouped command list, or `tg <command> --help` for
   (list, create, add-chat/remove-chat, delete, reorder).
 - **Realtime:** `watch [peer]` streams new messages as JSON lines; `wait [peer]` blocks
   until the next message (with `--timeout`).
+
+## Polls
+
+History, context, pinned messages, and search include a `poll` object on any
+message whose media is a poll (text output prints the same details under the
+message). `media` stays `"poll"`.
+
+```console
+$ tg poll create @group "Lunch?" "Pizza" "Sushi"          # anonymous, single-choice
+$ tg poll create @group "Pick" "A" "B" --multiple --public
+$ tg history @group -o json                               # .data.messages[].poll
+$ tg poll show @group 12345                               # fresh results via messages.getPollResults
+$ tg poll show id:2201861038 42                           # same peers as history, including id:<n>
+$ tg poll vote @group 12345 1                             # 1-based index
+$ tg poll vote @group 12345 Pizza                         # or the option text
+$ tg poll vote @group 12345 1 3                           # several options when multiple-choice
+$ tg poll vote @group 12345 --retract                     # remove your vote
+$ tg poll voters @group 12345 --option 1 --limit 20       # public polls only
+```
+
+JSON for a poll (inside a message, or under `poll show` / `poll vote` as
+`data.poll`):
+
+- `question`, `closed`, `multiple_choice`, `quiz`, `public_voters`, `total_voters`
+- `chosen`: 1-based indexes you voted for (empty if you have not voted)
+- `options[]`: `index` (1-based), `option` (the token Telegram stores, usually `"0"`, `"1"`, …), `text`, `voters`, `percent` (share of `total_voters`, one decimal), `chosen`, and `correct` on quiz answers that are the right one
+
+`poll voters` lists each person's name and `@username` with the option they
+picked. Anonymous polls error instead of calling the API blindly: voter lists
+only exist for polls created with `--public`.
 
 ## Global flags
 
