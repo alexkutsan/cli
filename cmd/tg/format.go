@@ -163,6 +163,10 @@ func buildMessageItem(msg *tg.Message, ent peer.Entities) messageItem {
 	}
 	if media, ok := msg.GetMedia(); ok {
 		item.Media = mediaType(media)
+		if mp, ok := media.(*tg.MessageMediaPoll); ok {
+			view := buildPollView(mp.Poll, mp.Results)
+			item.Poll = &view
+		}
 	}
 	if from, ok := msg.GetFromID(); ok {
 		ref := describePeer(from, ent)

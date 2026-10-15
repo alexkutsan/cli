@@ -14,13 +14,14 @@ import (
 
 // messageItem describes one message.
 type messageItem struct {
-	ID      int      `json:"id"`
-	Date    int      `json:"date"`
-	Out     bool     `json:"out"`
-	From    *peerRef `json:"from,omitempty"`
-	Text    string   `json:"text,omitempty"`
-	Media   string   `json:"media,omitempty"`
-	ReplyTo int      `json:"reply_to,omitempty"`
+	ID      int       `json:"id"`
+	Date    int       `json:"date"`
+	Out     bool      `json:"out"`
+	From    *peerRef  `json:"from,omitempty"`
+	Text    string    `json:"text,omitempty"`
+	Media   string    `json:"media,omitempty"`
+	Poll    *pollView `json:"poll,omitempty"`
+	ReplyTo int       `json:"reply_to,omitempty"`
 }
 
 // historyResult is the result of `tg history`.
@@ -43,7 +44,9 @@ func (h historyResult) MarshalText(w io.Writer) error {
 		if m.Text != "" {
 			line += " " + m.Text
 		}
-		if m.Media != "" {
+		if m.Poll != nil {
+			line += " [poll]"
+		} else if m.Media != "" {
 			line += " [" + m.Media + "]"
 		}
 		if m.ReplyTo != 0 {
@@ -51,6 +54,11 @@ func (h historyResult) MarshalText(w io.Writer) error {
 		}
 		if _, err := fmt.Fprintln(w, line); err != nil {
 			return err
+		}
+		if m.Poll != nil {
+			if err := writePoll(w, *m.Poll, "  "); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -103,7 +111,8 @@ func (a *app) newHistoryCmd() *cobra.Command {
 		Short:   "Read recent messages from a peer",
 		GroupID: groupMessaging,
 		Long: `Read recent messages from a peer (newest-first from the API, printed
-oldest-first). The peer is me/self, @username, phone, or a t.me link.`,
+oldest-first). The peer is me/self, @username, phone, or a t.me link.
+Poll messages include the question, options, flags, vote counts, and your choice.`,
 		Example: `  tg history me
   tg history @durov --limit 20
   tg history @somechannel --output json`,

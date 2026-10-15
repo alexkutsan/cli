@@ -129,9 +129,11 @@ func (a *app) newPinnedCmd() *cobra.Command {
 	var limit int
 
 	cmd := &cobra.Command{
-		Use:               "pinned <peer>",
-		Short:             "List pinned messages",
-		GroupID:           groupMessaging,
+		Use:     "pinned <peer>",
+		Short:   "List pinned messages",
+		GroupID: groupMessaging,
+		Long: `List pinned messages in a peer.
+Poll messages include the question, options, and results.`,
 		Args:              cobra.ExactArgs(1),
 		ValidArgsFunction: peerArgCompletion,
 		Example:           "  tg pinned @durov\n  tg pinned me --output json",
